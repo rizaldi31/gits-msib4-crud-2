@@ -40,10 +40,19 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'product_name' => 'required',
+            'product_description' => 'required',
+            'product_price' => 'required|numeric',
+            'category_id' => 'required'
+        ]);
+        //===============
+
         Product::create([
-            'name' => $request->input('product_name'),
-            'description' => $request->input('product_description'),
-            'category_id' => $request->input('category_id')
+            'name' => $validated['product_name'],
+            'description' => $validated['product_description'],
+            'price' => $validated['product_price'],
+            'category_id' => $validated['category_id']
         ]);
 
         return redirect('/product');
@@ -68,7 +77,10 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
-        //
+        $data['categories'] = Category::all();
+        $data['product'] = Product::find($id);
+
+        return view('/product/edit', $data);
     }
 
     /**
@@ -80,7 +92,21 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validated = $request->validate([
+            'product_name' => 'required',
+            'product_description' => 'required',
+            'product_price' => 'required|numeric',
+            'category_id' => 'required'
+        ]);
+
+        Product::where('id', $id)->update([
+            'name' => $validated['product_name'],
+            'description' => $validated['product_description'],
+            'category_id' => $validated['category_id'],
+            'price' => $validated['product_price']
+        ]);
+
+        return redirect('/product');
     }
 
     /**
@@ -91,6 +117,7 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Product::destroy($id);
+        return redirect('/product');
     }
 }
